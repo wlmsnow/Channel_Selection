@@ -150,7 +150,7 @@ class DeepQNetwork:
         if self.learn_step_counter % self.replace_target_iter == 0:
             self._replace_target_params()
             print('\ntarget_params_replaced\n')
-
+ 
         # sample batch memory from all memory
         if self.memory_counter > self.memory_size:#如果需要记忆的步数超过记忆库容量
             sample_index = np.random.choice(self.memory_size, size=self.batch_size)#从给定的一维阵列self.memory_size生成一个随机样本，size为Output shape.
@@ -167,29 +167,7 @@ class DeepQNetwork:
 
         # change q_target w.r.t q_eval's action
         q_target = q_eval.copy()#浅拷贝，父目录复制，子目录会随原始改变而变化，
-        # q_next, q_eval 包含所有 action 的值,而我们需要的只是已经选择好的 action 的值, 其他的并不需要.
-
-        # 所以我们将其他的 action 值全变成 0, 将用到的 action 误差值 反向传递回去, 作为更新凭据.
-
-        # 这是我们最终要达到的样子, 比如 q_target - q_eval = [1, 0, 0] - [-1, 0, 0] = [2, 0, 0]
-
-        # q_eval = [-1, 0, 0] 表示这一个记忆中有我选用过 action 0, 而 action 0 带来的 Q(s, a0) = -1, 所以其他的 Q(s, a1) = Q(s, a2) = 0.
-
-        # q_target = [1, 0, 0] 表示这个记忆中的 r+gamma*maxQ(s_) = 1, 而且不管在 s_ 上我们取了哪个 action,我们都需要对应上 q_eval 中的 action 位置, 所以将 1 放在了 action 0 的位置.
-
-
-
-        # 下面也是为了达到上面说的目的, 不过为了更方面让程序运算, 达到目的的过程有点不同.
-
-        # 是将 q_eval 全部赋值给 q_target, 这时 q_target-q_eval 全为 0,
-
-        # 不过 我们再根据 batch_memory 当中的 action 这个 column 来给 q_target 中的对应的 memory-action 位置来修改赋值.
-
-        # 使新的赋值为 reward + gamma * maxQ(s_), 这样 q_target-q_eval 就可以变成我们所需的样子.
-
-        # 具体在下面还有一个举例说明.
-
-
+        
 
         batch_index = np.arange(self.batch_size, dtype=np.int32)
         eval_act_index = batch_memory[:, self.n_features].astype(int)
